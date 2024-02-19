@@ -9,3 +9,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// Prisma uses @default(autoincrement()) for auto-incrementing primary keys.
+// String? and Int? mean that the field is optional.
+// @default(now()) sets the default value of a field to the current timestamp.
+// @updatedAt updates the timestamp every time the record is updated.
+
+model Sport {
+  id         Int      @id @default(autoincrement())
+  title      String
+  date       DateTime
+  time       DateTime
+  players    String?
+  location   String
+  additional Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String?
+  email     String  @unique
+  password  String
+  role      String?
+  sessions  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sports    Sport[]
+}
