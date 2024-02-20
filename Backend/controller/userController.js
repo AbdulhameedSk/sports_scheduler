@@ -33,6 +33,51 @@ const registerController = async (req, res) => {
   }
 };
 
+const registertogameController = async (req, res) => {
+  try {
+    const { userId, gameId } = req.body;
+    if (!userId || !gameId) {
+      return res.status(400).json({
+        success: false,
+        msg: "Please provide both userId and gameId",
+      });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        msg: "User not found",
+      });
+    }
+
+    const game = await prisma.game.findUnique({ where: { id: gameId } });
+    if (!game) {
+      return res.status(400).json({
+        success: false,
+        msg: "Game not found",
+      });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { gameId },
+    });
+
+    return res.status(200).json({
+      success: true,
+      msg: "User registered to game successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error in registertogameController:", error);
+    return res.status(500).json({
+      success: false,
+      msg: "Failed to register user to game",
+      error: error.message,
+    });
+  }
+};
 const getAllUsers = async (req, res) => {
   const users = await prisma.user.findMany();
   res.status(200).send({
@@ -63,8 +108,8 @@ const loginController = async (req, res) => {
       });
     }
     return res.status(200).json({
-      success:true,
-      user
+      success: true,
+      user,
     });
   } catch (error) {
     res.status(500).send({
@@ -77,4 +122,5 @@ module.exports = {
   getAllUsers,
   registerController,
   loginController,
+  registertogameController,
 };

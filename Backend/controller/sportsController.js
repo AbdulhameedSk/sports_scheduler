@@ -1,8 +1,11 @@
-const mongoose = require("mongoose");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-exports.getAllsportsController = async (req, res) => {
+exports.getAllSportsController = async (req, res) => {
     try {
-        const sports = await blogModel.find({}).populate('user');
+        const sports = await prisma.sport.findMany({
+            include: { user: true },
+        });
         if (!sports || sports.length === 0) {
             return res.status(200).send({
                 success: true,
@@ -12,7 +15,7 @@ exports.getAllsportsController = async (req, res) => {
         return res.status(200).send({
             success: true,
             msg: "GOT",
-            blogCount: sports.length,
+            sportCount: sports.length,
             sports,
         });
     } catch (error) {
@@ -24,108 +27,96 @@ exports.getAllsportsController = async (req, res) => {
     }
 };
 
-exports.createBlogController = async (req, res) => {
+exports.createSportController = async (req, res) => {
     try {
-        const { title, description, image, user } = req.body;
-        if (!title || !description || !user) {
+        const { title, date, time, players, location, additional, userId } = req.body;
+        if (!title || !date || !time || !location || !userId) {
             return res.status(400).send({
-                msg: "Please fill title, description, and user",
+                msg: "Please fill title, date, time, location, and userId",
             });
         }
-        const exist = await userModel.findById(user);
+        const exist = await prisma.user.findUnique({ where: { id: userId } });
         if (!exist) {
             return res.status(400).send({
                 msg: "Unable to find user",
             });
         }
 
-        const newBlog = new blogModel({
-            title,
-            description,
-            image,
-            user,
+        const newSport = await prisma.sport.create({
+            data: {
+                title,
+                date: new Date(date),
+                time: new Date(time),
+                players,
+                location,
+                additional,
+                userId,
+            },
         });
-
-        const session = await mongoose.startSession();
-        session.startTransaction();
-        await newBlog.save({ session });
-        exist.sports.push(newBlog);
-        await exist.save({ session });
-        await session.commitTransaction();
 
         return res.status(200).send({
             success:true,
-            newBlog,
+            newSport,
         });
     } catch (error) {
         return res.status(400).send({
             success: false,
-            msg: "UNABLE TO CREATE BLOG",
+            msg: "UNABLE TO CREATE SPORT",
             error: error.message,
         });
     }
 };
 
-exports.updateBlogController = async (req, res) => {
+exports.updateSportController = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const { title, description, image } = req.body;
-        // Check if the required fields are missing
-        if (!title && !description && !image) {
+        const { title, date, time, players, location, additional } = req.body;
+        if (!title && !date && !time && !location && !additional) {
             return res.status(400).send({
                 success: false,
                 msg: "Please provide at least one field to update",
             });
         }
 
-        // Construct an object containing the fields to update
-        const updateFields = {};
-        if (title) updateFields.title = title;
-        if (description) updateFields.description = description;
-        if (image) updateFields.image = image;
-
-        // Find and update the blog by ID
-        const updatedBlog = await blogModel.findByIdAndUpdate(id, updateFields, {
-            new: true,
+        const updatedSport = await prisma.sport.update({
+            where: { id: Number(id) },
+            data: { title, date, time, players, location, additional },
         });
 
-        // Check if the blog with the provided ID exists
-        if (!updatedBlog) {
+        if (!updatedSport) {
             return res.status(404).send({
                 success: false,
-                msg: "Blog not found",
+                msg: "Sport not found",
             });
         }
 
-        // Send the updated blog as response
         return res.status(200).send({
             success: true,
-            msg: "Blog updated successfully",
-            updatedBlog,
+            msg: "Sport updated successfully",
+            updatedSport,
         });
     } catch (error) {
-        // Handle errors
         return res.status(400).send({
             success: false,
-            msg: "Error in updating blog",
+            msg: "Error in updating sport",
             error: error.message,
         });
     }
 };
 
-exports.getBlogById = async (req, res) => {
+exports.getSportById = async (req, res) => {
     try {
         const id = req.params.id;
-        const blog = await blogModel.findById(id);
-        if (!blog) {
+        const sport = await prisma.sport.findUnique({ where: { id: Number(id) } });
+        if (!sport) {
             return res.status(200).send({
-                msg: "no such blog",
+                msg: "no such sport",
             });
         }
         return res.status(200).send({
             success:true,
-            blog,
+            sport,
         });
     } catch (error) {
         return res.status(400).send({
@@ -135,18 +126,14 @@ exports.getBlogById = async (req, res) => {
     }
 };
 
-exports.deleteBlogController = async (req, res) => {
+exports.deleteSportController = async (req, res) => {
     try {
         const id = req.params.id;
-        const blog = await blogModel
-        // .findByIdAndDelete(id).populate("user");
-        .findByIdAndDelete(id).populate("user");
-        await blog.user.sports.pull(blog);
-        await blog.user.save();
+        const sport = await prisma.sport.delete({ where: { id: Number(id) } });
         return res.status(200).send({
             success:true,
             msg: "Deleted Successfully",
-            data: blog,
+            data: sport,
         });
     } catch (error) {
         return res.status(400).send({
@@ -156,10 +143,13 @@ exports.deleteBlogController = async (req, res) => {
     }
 };
 
-exports.userBlogController = async (req, res) => {
+exports.userSportController = async (req, res) => {
     try {
-        const userBlog = await userModel.findById(req.params.id).populate("sports");
-        if (!userBlog) {
+        const userSport = await prisma.user.findUnique({
+            where: { id: Number(req.params.id) },
+            include: { sports: true },
+        });
+        if (!userSport) {
             return res.status(404).send({
                 success: false,
                 msg: "sports NOT FOUND WITH THIS ID",
@@ -168,13 +158,13 @@ exports.userBlogController = async (req, res) => {
         return res.status(200).send({
             success: true,
             message: "user sports",
-            userBlog,
+            userSport,
         });
     } catch (error) {
-        console.error("Error in userBlogController:", error);
+        console.error("Error in userSportController:", error);
         return res.status(400).send({
             success: false,
-            message: "Error in userBlogController",
+            message: "Error in userSportController",
             error,
         });
     }
