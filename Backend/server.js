@@ -13,11 +13,12 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 
-const userRoutes = require("./routes/userRoutes");
-const sportsRoutes = require("./routes/sportsRoutes");
-
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/sports", sportsRoutes);
+const adminRoutes = require("./routes/adminRoutes");
+const playerRoutes = require("./routes/playerRoutes");
+const signinRoutes=require("/routes/signinRoutes")
+app.use("/api/v1/admin", adminRoutes);
+app.use("/api/v1/player", playerRoutes);
+app.use("/api/v1/signin", signinRoutes);
 
 const PORT = process.env.PORT || 1996;
 const mode = process.env.DEV_MODE;
