@@ -15,7 +15,7 @@ app.use(morgan("dev"));
 
 const adminRoutes = require("./routes/adminRoutes");
 const playerRoutes = require("./routes/playerRoutes");
-const signinRoutes=require("/routes/signinRoutes")
+const signinRoutes=require("./routes/signinRoutes")
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/player", playerRoutes);
 app.use("/api/v1/signin", signinRoutes);
