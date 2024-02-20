@@ -1,5 +1,4 @@
 const { PrismaClient } = require("@prisma/client");
-const { updateGameController } = require("./sportsController");
 const prisma = new PrismaClient();
 
 //create sport
@@ -217,11 +216,11 @@ const getAllSportsController = async (req, res) => {
   }
 };
 
-module.exports({
+module.exports={
   getAllSportsController,
   updateGameController,
   createGameController,
   deleteSportController,
   updateSportController,
   createSportController,
-});
+};
