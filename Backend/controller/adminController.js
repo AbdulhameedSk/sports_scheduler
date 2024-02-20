@@ -42,30 +42,31 @@ const updateSportController = async (req, res) => {
     const { id } = req.params;
 
     const { sname, sdesc, maxplayers, created_by } = req.body;
-    if (!sname || !sdesc || !maxplayers || !created_by) {
+
+    if (sname || sdesc || maxplayers || created_by) {
+      const updatedSport = await prisma.sports.update({
+        where: { sportid: Number(id) },
+        data: { sname, sdesc, maxplayers, created_by },
+      });
+
+      if (!updatedSport) {
+        return res.status(404).send({
+          success: false,
+          msg: "Sport not found",
+        });
+      }
+
+      return res.status(200).send({
+        success: true,
+        msg: "Sport updated successfully",
+        updatedSport,
+      });
+    } else {
       return res.status(400).send({
         success: false,
-        msg: "Please provide at least one field to update",
+        msg: "Please provide at All field to update",
       });
     }
-
-    const updatedSport = await prisma.sports.update({
-      where: { sportid: Number(id) },
-      data: { sname, sdesc, maxplayers, created_by },
-    });
-
-    if (!updatedSport) {
-      return res.status(404).send({
-        success: false,
-        msg: "Sport not found",
-      });
-    }
-
-    return res.status(200).send({
-      success: true,
-      msg: "Sport updated successfully",
-      updatedSport,
-    });
   } catch (error) {
     return res.status(400).send({
       success: false,
@@ -142,10 +143,10 @@ const createGameController = async (req, res) => {
       success: true,
       newGame,
     });
-  } catch {
+  } catch(error) {
     res.status(500).send({
       success: false,
-      error,
+        error,
       msg: "error in creating game",
     });
   }
@@ -156,38 +157,46 @@ const updateGameController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { title, date, time, players, location } = req.body;
-    if (!title || !date || !time || !location) {
+    const {  date, startTime, venue,isCompleted } = req.body;
+    if (!isCompleted && !date && !startTime && !venue) {
       return res.status(400).send({
         success: false,
         msg: "Please provide at least one field to update",
       });
     }
 
-    const updatedSport = await prisma.sports.update({
-      where: { id: Number(id) },
-      data: { title, date, time, players, location },
+    const updatedGame = await prisma.games.update({
+      where: { gameId: parseInt(id) },
+      data: { 
+        isCompleted,
+        date: new Date(date),
+        startTime: new Date(startTime),
+        venue,
+      }
     });
 
-    if (!updatedSport) {
+    if (!updatedGame) {
       return res.status(404).send({
         success: false,
-        msg: "Sport not found",
+        msg: "Game not found",
       });
     }
 
     return res.status(200).send({
       success: true,
-      msg: "Sport updated successfully",
-      updatedSport,
+      msg: "Game updated successfully",
+      updatedGame,
     });
   } catch (error) {
     return res.status(400).send({
       success: false,
-      msg: "Error in updation of sport",
+      msg: "Error in updating game",
+      error
     });
   }
-};
+}
+
+
 
 // Get all sports
 const getAllSportsController = async (req, res) => {
@@ -216,7 +225,7 @@ const getAllSportsController = async (req, res) => {
   }
 };
 
-module.exports={
+module.exports = {
   getAllSportsController,
   updateGameController,
   createGameController,

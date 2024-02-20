@@ -14,6 +14,6 @@ router.post("/create-sports", createSportController);
 router.put("/update-sports/:id", updateSportController);
 router.post("/delete-sports/:id", deleteSportController);
 router.post("/create-game/", createGameController);
-router.put("/update-game/:id", updateGameController);
+router.post("/update-game/:id", updateGameController);
 
 module.exports = router;
