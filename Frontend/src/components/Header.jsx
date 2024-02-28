@@ -2,7 +2,7 @@ const Header = () => {
   return (
     <header className="bg-gray-800 text-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Sports-Schedular</h1>
+        <h1 className="text-xl font-bold">SPORTS-SCHEDULAR</h1>
         <nav className="space-x-4">
           <button className="hover:text-gray-300 transition duration-300">
             Games

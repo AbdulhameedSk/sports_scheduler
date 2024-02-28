@@ -14,9 +14,11 @@ app.use(morgan("dev"));
 const adminRoutes = require("./routes/adminRoutes");
 const playerRoutes = require("./routes/playerRoutes");
 const signinRoutes=require("./routes/signinRoutes")
+const gameRoutes=require("./routes/gameRoutes")
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/player", playerRoutes);
 app.use("/api/v1/signin", signinRoutes);
+app.use("/api/v1/game", gameRoutes);
 
 const PORT = process.env.PORT || 1996;
 const mode = process.env.DEV_MODE;
