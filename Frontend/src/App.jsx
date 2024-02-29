@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 
 import Header from "./components/Header";
 import Sportslist from "./pages/Sportlist";
+import Createsport from "./pages/Createsport";
 
 function App() {
   return (
@@ -9,6 +10,8 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Sportslist />} />
+        <Route path="/sports" element={<Sportslist />} />
+        <Route path="/add-sport" element={<Createsport />} />
       </Routes>
     </>
   );

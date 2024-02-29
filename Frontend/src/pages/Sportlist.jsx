@@ -1,33 +1,26 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Sport } from "../components/Sport";
-const addSport=()=>{
-}
+import { useNavigate } from "react-router-dom";  
 const Sportslist = () => {
   const [sports, setSports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+const navigate = useNavigate();
   const getSports = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:8080/api/v1/admin/all-sports"
+      const { data } = await axios.get(
+        `http://localhost:8080/api/v1/admin/all-sports`
       );
-      setSports(response.data.sports);
-      setLoading(false);
+      if (data?.success) {
+        setSports(data?.sports);
+      }
     } catch (error) {
-      console.error("Error fetching sports:", error);
-      setError(error.message);
-      setLoading(false);
+      alert(error);
     }
   };
 
   useEffect(() => {
     getSports();
   }, []);
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   return (
     <>
@@ -46,7 +39,7 @@ const Sportslist = () => {
         </div>
       </div>
       <div className="flex justify-center">
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded " onClick={()=>{addSport}}>
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded " onClick={()=>navigate('/add-sport')}>
           Add a new sport
         </button>
       </div>
