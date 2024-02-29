@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Sport } from "../components/Sport";
 
-const SportsList = () => {
+const Sportslist = () => {
   const [sports, setSports] = useState([]);
   const getSports = async () => {
     try {
@@ -29,4 +29,4 @@ const SportsList = () => {
     </div>
   );
 };
-export default SportsList;
+export default Sportslist;
